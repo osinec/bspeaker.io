@@ -1,55 +1,70 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 1. Тип документа -->
+    <meta charset="UTF-8"> <!-- ❗ Обязательная строка для правильного отображения текста -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- 🟢 Можно оставить или убрать -->
+
+    <!-- 2. Заголовок страницы -->
     <title>Тренажёр публичных выступлений</title>
-    <script src="https://cdn.tailwindcss.com"></script> 
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"  rel="stylesheet">
+
+    <!-- 3. Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>  <!-- 🚫 Не удалять, если используете стили из Tailwind -->
+
+    <!-- 4. Font Awesome для иконок -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"  rel="stylesheet"> <!-- 🚫 Не удалять, если используются иконки -->
+
+    <!-- 5. Локальные стили -->
     <style>
         .speech-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transform: translateY(-5px); <!-- 🟢 Можно менять: эффект при наведении -->
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); <!-- 🟢 Меняйте тени как хотите -->
         }
     </style>
 </head>
 <body class="bg-gray-900 min-h-screen">
+
+    <!-- 6. Основной контейнер -->
     <div class="container mx-auto px-4 py-4 md:py-8">
-        <!-- Шапка -->
+        
+        <!-- 7. Шапка сайта -->
         <header class="mb-6 md:mb-12 text-center">
             <h1 class="text-2xl md:text-4xl font-bold text-white mb-2">Тренажёр ораторского мастерства</h1>
-            <p class="text-base md:text-lg text-white max-w-2xl mx-auto px-2">
-                Совершенствуйте свои навыки публичных выступлений с помощью разнообразных упражнений
-            </p>
+            <p class="text-base md:text-lg text-white max-w-2xl mx-auto px-2">Совершенствуйте свои навыки публичных выступлений с помощью разнообразных упражнений</p>
         </header>
 
-        <!-- Основное содержимое -->
+        <!-- 8. Макет сетки -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
-            <!-- Колонка 1: Список упражнений -->
+
+            <!-- 9. Список упражнений -->
             <div class="md:col-span-2 space-y-6">
                 <div class="bg-gray-800 rounded-xl shadow-md p-4 md:p-6">
-                    <h2 class="text-2xl font-semibold text-white mb-4">Мои упражнения</h2>
-                    <!-- Список упражнений -->
+                    <h2 class="text-2xl font-semibold text-white">Мои упражнения</h2>
+
+                    <!-- 10. Список упражнений -->
                     <div id="exercisesList" class="space-y-3 md:space-y-4 overflow-y-auto max-h-[70vh] md:max-h-none"></div>
                 </div>
             </div>
 
-            <!-- Колонка 2: Таймер -->
+            <!-- 11. Колонка таймера -->
             <div class="space-y-6">
                 <!-- Таймер -->
                 <div class="bg-gray-800 rounded-xl shadow-md p-6">
                     <h2 class="text-2xl font-semibold text-white mb-4">Готовы выступать?</h2>
                     <div class="flex flex-col items-center">
                         <div class="relative mb-6">
+                            <!-- SVG круговой таймер -->
                             <svg id="timerCircle" class="w-64 h-64 -rotate-90">
                                 <circle cx="50%" cy="50%" r="80" fill="none" stroke="#2D3748" stroke-width="12"></circle>
                                 <circle id="timerProgress" cx="50%" cy="50%" r="80" fill="none" stroke="#4299E1" stroke-width="12" stroke-dasharray="502.4" stroke-dashoffset="0"></circle>
                             </svg>
+                            <!-- Отображение времени -->
                             <div id="timerDisplay" class="absolute inset-0 flex items-center justify-center flex-col">
                                 <div class="text-4xl md:text-5xl font-bold text-white mb-1">03:00</div>
                                 <div class="text-sm text-white">осталось</div>
                             </div>
                         </div>
+                        <!-- Кнопки управления таймером -->
                         <div class="flex space-x-2 md:space-x-3">
                             <button id="startTimer" onclick="startTimer()" class="px-4 py-1 md:px-6 md:py-2 bg-gray-700 text-white rounded-full hover:bg-gray-600 transition flex items-center text-sm md:text-base">
                                 <i class="fas fa-play mr-2"></i> Старт
@@ -64,7 +79,7 @@
                     </div>
                 </div>
 
-                <!-- Текущее упражнение -->
+                <!-- 12. Блок "Сейчас выступаете" -->
                 <div id="currentExercise" class="bg-gray-800 rounded-xl shadow-md p-6 hidden">
                     <h2 class="text-2xl font-semibold text-white mb-2">Сейчас выступаете:</h2>
                     <h3 id="currentExerciseTitle" class="text-xl font-medium text-white mb-2"></h3>
@@ -75,8 +90,9 @@
         </div>
     </div>
 
+    <!-- 13. JavaScript -->
     <script>
-        // Список упражнений
+        // 14. Список упражнений
         let exercises = [
             {
                 id: 1,
@@ -102,52 +118,57 @@
                 time: 5,
                 completed: false
             }
-        ];
+        ]; // 🟢 Можно добавлять/удалять упражнения, менять описание, время и сложность
 
+        const isAdminMode = true; // 🟢 Можно изменить на false, если сайт для всех пользователей
         let timerInterval;
-        let timeLeft = 180; // 3 минуты по умолчанию
+        let timeLeft = 180; // 🟢 Начальное время в секундах (3 минуты)
         let isTimerRunning = false;
         let currentExerciseId = null;
 
-        // DOM элементы
-        const exercisesList = document.getElementById('exercisesList');
-        const timerDisplay = document.getElementById('timerDisplay');
-        const timerProgress = document.getElementById('timerProgress');
-        const startTimerBtn = document.getElementById('startTimer');
-        const pauseTimerBtn = document.getElementById('pauseTimer');
-        const currentExerciseDiv = document.getElementById('currentExercise');
-        const currentExerciseTitle = document.getElementById('currentExerciseTitle');
-        const currentExerciseDesc = document.getElementById('currentExerciseDesc');
-        const currentExerciseDiff = document.getElementById('currentExerciseDiff');
+        // 15. DOM элементы
+        const exercisesList = document.getElementById('exercisesList'); // 🚫 Не удалять — основной список
+        const timerDisplay = document.getElementById('timerDisplay'); // 🚫 Не удалять — таймер
+        const timerProgress = document.getElementById('timerProgress'); // 🚫 Не удалять — круг таймера
+        const startTimerBtn = document.getElementById('startTimer'); // 🚫 Не удалять — кнопка старта
+        const pauseTimerBtn = document.getElementById('pauseTimer'); // 🚫 Не удалять — кнопка паузы
+        const currentExerciseDiv = document.getElementById('currentExercise'); // 🚫 Не удалять — текущее упражнение
+        const currentExerciseTitle = document.getElementById('currentExerciseTitle'); // 🚫 Не удалять — заголовок упражнения
+        const currentExerciseDesc = document.getElementById('currentExerciseDesc'); // 🚫 Не удалять — описание упражнения
+        const currentExerciseDiff = document.getElementById('currentExerciseDiff'); // 🚫 Не удалять — уровень сложности
 
-        // Формирует метку уровня сложности
+        // 16. Формирует метку уровня сложности
         function getDifficultyLabel(difficulty) {
             let label = '';
             switch (difficulty) {
                 case 1:
-                    label = "Не бейте меня...";
+                    label = "Не бейте меня..."; // 🟢 Меняйте на любой текст
                     break;
                 case 2:
-                    label = "Говори или умри..";
+                    label = "Говори или умри.."; // 🟢 То же самое
                     break;
                 case 3:
-                    label = "Voice of God";
+                    label = "Voice of God"; // 🟢 Меняйте как угодно
                     break;
                 default:
-                    label = "Неизвестно";
+                    label = "Неизвестно"; // 🟢 Можно изменить
             }
 
             return `<span class="inline-block border border-blue-500 text-white text-xs px-2 py-1 rounded">${label}</span>`;
         }
 
-        // Рисует карточки упражнений
+        // 17. Рисует карточки упражнений
         function renderExercises() {
+            // 🚫 Не удалять — очищает список перед новой отрисовкой
             exercisesList.innerHTML = '';
+
+            // 🟢 Безопасно менять: стиль, расположение, внешний вид
             exercises.forEach(exercise => {
                 const difficultyLabel = getDifficultyLabel(exercise.difficulty);
 
                 const exerciseCard = document.createElement('div');
                 exerciseCard.className = 'speech-card border-2 border-blue-500 rounded-lg p-4 bg-gray-700 transition cursor-pointer hover:shadow-md';
+                // 🟢 Можно менять HTML внутри этой строки: название классов, цвета, оформление
                 exerciseCard.innerHTML = `
                     <div class="flex justify-between items-start">
                         <div>
@@ -157,7 +178,7 @@
                         <span class="text-sm font-medium px-2 py-1 bg-gray-300 text-black rounded-full">${exercise.time} мин</span>
                     </div>
                     <div class="mt-3 flex justify-between items-center">
-                        <div>${difficultyLabel}</div>
+                        <div>Сложность: ${difficultyLabel}</div> <!-- 🟢 Добавлено "Сложность:" -->
                         <div>
                             <button onclick="startExercise(${exercise.id}, event)" class="text-xs bg-green-700 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2">
                                 Начать
@@ -169,31 +190,32 @@
             });
         }
 
-        // Запуск упражнения
+        // 18. Запуск упражнения
         function startExercise(id, event) {
-            if (event) event.stopPropagation();
-            const exercise = exercises.find(ex => ex.id === id);
+            if (event) event.stopPropagation(); // 🚫 Не удалять — защита от множественного вызова
+            const exercise = exercises.find(ex => ex.id === id); // 🚫 Не удалять — поиск упражнения
             if (!exercise) return;
 
-            currentExerciseId = id;
-            timeLeft = exercise.time * 60;
+            currentExerciseId = id; // 🚫 Не удалять — ID текущего упражнения
+            timeLeft = exercise.time * 60; // 🚫 Не удалять — установка времени в секундах
             updateTimerDisplay();
 
+            // 🟢 Можно менять: текст, шрифт, цвета
             currentExerciseTitle.textContent = exercise.title;
             currentExerciseDesc.textContent = exercise.description;
-            currentExerciseDiff.innerHTML = getDifficultyLabel(exercise.difficulty); // <-- уровень сложности
+            currentExerciseDiff.innerHTML = `Сложность: ${getDifficultyLabel(exercise.difficulty)}`;
             currentExerciseDiv.classList.remove('hidden');
-
-            document.getElementById('timerCircle').scrollIntoView({ behavior: 'smooth' });
         }
 
-        // Таймер
+        // 19. Таймер
         function startTimer() {
-            if (isTimerRunning) return;
+            if (isTimerRunning) return; // 🚫 Не удалять — защита от повторного запуска
             if (timeLeft <= 0) resetTimer();
             isTimerRunning = true;
-            startTimerBtn.classList.add('hidden');
+            startTimerBtn.classList.add('hidden'); // 🚫 Не удалять — управление кнопками
             pauseTimerBtn.classList.remove('hidden');
+
+            // 🚫 Не удалять — основной цикл таймера
             timerInterval = setInterval(() => {
                 timeLeft--;
                 updateTimerDisplay();
@@ -215,14 +237,14 @@
         }
 
         function pauseTimer() {
-            clearInterval(timerInterval);
+            clearInterval(timerInterval); // 🚫 Не удалять — пауза таймера
             isTimerRunning = false;
             startTimerBtn.classList.remove('hidden');
             pauseTimerBtn.classList.add('hidden');
         }
 
         function resetTimer() {
-            clearInterval(timerInterval);
+            clearInterval(timerInterval); // 🚫 Не удалять — сброс таймера
             isTimerRunning = false;
             if (currentExerciseId) {
                 const exercise = exercises.find(ex => ex.id === currentExerciseId);
@@ -239,6 +261,7 @@
             const minutes = Math.floor(timeLeft / 60);
             const seconds = timeLeft % 60;
             timerDisplay.querySelector('div:first-child').textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
             const totalSeconds = currentExerciseId ? exercises.find(ex => ex.id === currentExerciseId)?.time * 60 : 180;
             const circumference = 2 * Math.PI * 80;
             const percent = (timeLeft / totalSeconds) * circumference;
@@ -251,10 +274,10 @@
             audio.play().catch(e => console.log('Не удалось воспроизвести звук:', e));
         }
 
-        // Инициализация при загрузке
+        // 20. Инициализация при загрузке
         document.addEventListener('DOMContentLoaded', () => {
-            renderExercises();
-            updateTimerDisplay();
+            renderExercises(); // 🚫 Не удалять — отрисовка упражнений
+            updateTimerDisplay(); // 🚫 Не удалять — начальный таймер
         });
     </script>
 </body>
