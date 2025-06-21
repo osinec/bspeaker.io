@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Тренажёр публичных выступлений</title>
-    <script src="https://cdn.tailwindcss.com"></script>  
+    <script src="https://cdn.tailwindcss.com"></script> 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"  rel="stylesheet">
     <style>
         .speech-card:hover {
@@ -18,7 +18,9 @@
         <!-- Шапка -->
         <header class="mb-6 md:mb-12 text-center">
             <h1 class="text-2xl md:text-4xl font-bold text-white mb-2">Тренажёр ораторского мастерства</h1>
-            <p class="text-base md:text-lg text-white max-w-2xl mx-auto px-2">Совершенствуйте свои навыки публичных выступлений с помощью разнообразных упражнений</p>
+            <p class="text-base md:text-lg text-white max-w-2xl mx-auto px-2">
+                Совершенствуйте свои навыки публичных выступлений с помощью разнообразных упражнений
+            </p>
         </header>
 
         <!-- Основное содержимое -->
@@ -26,10 +28,7 @@
             <!-- Колонка 1: Список упражнений -->
             <div class="md:col-span-2 space-y-6">
                 <div class="bg-gray-800 rounded-xl shadow-md p-4 md:p-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-2xl font-semibold text-white">Мои упражнения</h2>
-                    </div>
-
+                    <h2 class="text-2xl font-semibold text-white mb-4">Мои упражнения</h2>
                     <!-- Список упражнений -->
                     <div id="exercisesList" class="space-y-3 md:space-y-4 overflow-y-auto max-h-[70vh] md:max-h-none"></div>
                 </div>
@@ -70,16 +69,14 @@
                     <h2 class="text-2xl font-semibold text-white mb-2">Сейчас выступаете:</h2>
                     <h3 id="currentExerciseTitle" class="text-xl font-medium text-white mb-2"></h3>
                     <p id="currentExerciseDesc" class="text-white mb-3"></p>
-                    <div id="currentExerciseDiff" class="flex items-center text-sm">
-                        <!-- Здесь будет сложность -->
-                    </div>
+                    <div id="currentExerciseDiff" class="flex items-center text-sm"></div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Инициализация данных
+        // Список упражнений
         let exercises = [
             {
                 id: 1,
@@ -107,9 +104,8 @@
             }
         ];
 
-        const isAdminMode = true; // Режим администратора
         let timerInterval;
-        let timeLeft = 180; // Начальное время таймера (3 минуты)
+        let timeLeft = 180; // 3 минуты по умолчанию
         let isTimerRunning = false;
         let currentExerciseId = null;
 
@@ -124,7 +120,7 @@
         const currentExerciseDesc = document.getElementById('currentExerciseDesc');
         const currentExerciseDiff = document.getElementById('currentExerciseDiff');
 
-        // Функция формирует метку уровня сложности без слова "Сложность:"
+        // Формирует метку уровня сложности
         function getDifficultyLabel(difficulty) {
             let label = '';
             switch (difficulty) {
@@ -141,11 +137,10 @@
                     label = "Неизвестно";
             }
 
-            // ❗ Эти строки можно менять по стилю, но не удалять!
             return `<span class="inline-block border border-blue-500 text-white text-xs px-2 py-1 rounded">${label}</span>`;
         }
 
-        // Обновление списка упражнений
+        // Рисует карточки упражнений
         function renderExercises() {
             exercisesList.innerHTML = '';
             exercises.forEach(exercise => {
@@ -153,8 +148,6 @@
 
                 const exerciseCard = document.createElement('div');
                 exerciseCard.className = 'speech-card border-2 border-blue-500 rounded-lg p-4 bg-gray-700 transition cursor-pointer hover:shadow-md';
-
-                // ❗ Эта строка добавляет уровень сложности без слова "Сложность:"
                 exerciseCard.innerHTML = `
                     <div class="flex justify-between items-start">
                         <div>
@@ -186,10 +179,9 @@
             timeLeft = exercise.time * 60;
             updateTimerDisplay();
 
-            // ❗ Эти строки отвечают за вывод уровня сложности под текущим упражнением
             currentExerciseTitle.textContent = exercise.title;
             currentExerciseDesc.textContent = exercise.description;
-            currentExerciseDiff.innerHTML = getDifficultyLabel(exercise.difficulty); // <-- здесь показывается уровень без слова "Сложность:"
+            currentExerciseDiff.innerHTML = getDifficultyLabel(exercise.difficulty); // <-- уровень сложности
             currentExerciseDiv.classList.remove('hidden');
 
             document.getElementById('timerCircle').scrollIntoView({ behavior: 'smooth' });
@@ -259,7 +251,7 @@
             audio.play().catch(e => console.log('Не удалось воспроизвести звук:', e));
         }
 
-        // ❗ НЕ УДАЛЯТЬ: Инициализация страницы при загрузке
+        // Инициализация при загрузке
         document.addEventListener('DOMContentLoaded', () => {
             renderExercises();
             updateTimerDisplay();
