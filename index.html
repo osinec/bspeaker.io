@@ -18,15 +18,19 @@
         <!-- Шапка -->
         <header class="mb-6 md:mb-12 text-center">
             <h1 class="text-2xl md:text-4xl font-bold text-white mb-2">Тренажёр ораторского мастерства</h1>
-            <p class="text-base md:text-lg text-white max-w-2xl mx-auto px-2">Совершенствуйте свои навыки публичных выступлений с помощью разнообразных упражнений</p>
+            <p class="text-base md:text-lg text-white max-w-2xl mx-auto px-2">
+                Совершенствуйте свои навыки публичных выступлений с помощью разнообразных упражнений
+            </p>
         </header>
 
-        <!-- Основное содержимое -->
+        <!-- Макет страницы -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
             <!-- Колонка 1: Список упражнений -->
             <div class="md:col-span-2 space-y-6">
                 <div class="bg-gray-800 rounded-xl shadow-md p-4 md:p-6">
-                    <h2 class="text-2xl font-semibold text-white mb-4">Мои упражнения</h2>
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-semibold text-white">Мои упражнения</h2>
+                    </div>
                     <!-- Список упражнений -->
                     <div id="exercisesList" class="space-y-4 overflow-y-auto max-h-[70vh]"></div>
                 </div>
@@ -70,9 +74,7 @@
                     <h2 class="text-2xl font-semibold text-white mb-2">Сейчас выступаете:</h2>
                     <h3 id="currentExerciseTitle" class="text-xl font-medium text-white mb-2"></h3>
                     <p id="currentExerciseDesc" class="text-white mb-3"></p>
-                    <div id="currentExerciseDiff" class="flex items-center text-sm">
-                        <!-- Здесь будет уровень сложности -->
-                    </div>
+                    <div id="currentExerciseDiff" class="flex items-center text-sm"></div>
                 </div>
             </div>
         </div>
@@ -87,8 +89,7 @@
                 description: "Возьмите случайный предмет и расскажите о нём 3 минуты...",
                 difficulty: 2,
                 time: 3,
-                completed: false,
-                fontSize: "8pt" // Новый параметр для размера шрифта
+                completed: false
             },
             {
                 id: 2,
@@ -96,8 +97,7 @@
                 description: "Выберите случайное слово и говорите на него 2 минуты.",
                 difficulty: 1,
                 time: 2,
-                completed: false,
-                fontSize: "12pt"
+                completed: false
             },
             {
                 id: 3,
@@ -105,8 +105,7 @@
                 description: "Подготовьте 5-минутную мотивационную речь.",
                 difficulty: 3,
                 time: 5,
-                completed: false,
-                fontSize: "16pt"
+                completed: false
             }
         ];
 
@@ -155,17 +154,24 @@
 
                 const exerciseCard = document.createElement('div');
                 exerciseCard.className = 'speech-card border-2 border-blue-500 rounded-lg p-4 bg-gray-700 transition cursor-pointer hover:shadow-md';
+
                 exerciseCard.innerHTML = `
                     <div class="flex justify-between items-start">
                         <div>
                             <h3 class="font-semibold text-lg text-white">${exercise.title}</h3>
-                            <!-- Используем fontSize из упражнения -->
-                            <p style="font-size: ${exercise.fontSize}; color: white; margin-top: 0.25rem;">${exercise.description}</p>
+                            <p class="text-white text-sm mt-1">${exercise.description}</p>
                         </div>
-                        <span class="text-sm font-medium px-2 py-1 bg-gray-300 text-black rounded-full">${exercise.time} мин</span>
+                        <!-- 🟢 Изменено: размер шрифта для "${exercise.time} мин" -->
+                        <span style="font-size: 12pt; background-color: #e5e7eb; color: black; padding: 0.25rem 0.5rem; border-radius: 9999px;">
+                            ${exercise.time} мин
+                        </span>
                     </div>
                     <div class="mt-3 flex justify-between items-center">
-                        <div>${difficultyLabel}</div>
+                        <div>
+                            <!-- 🟢 Добавлено: слово "Сложность:" -->
+                            <span class="text-white mr-2">Сложность:</span>
+                            ${difficultyLabel}
+                        </div>
                         <div>
                             <button onclick="startExercise(${exercise.id}, event)" class="text-xs bg-green-700 hover:bg-green-600 text-white px-3 py-1 rounded">
                                 Начать
@@ -187,15 +193,17 @@
             timeLeft = exercise.time * 60;
             updateTimerDisplay();
 
-            // Показываем полное описание и уровень сложности
+            // Показываем полное описание упражнения
             currentExerciseTitle.textContent = exercise.title;
-            currentExerciseDesc.style.fontSize = exercise.fontSize; // Устанавливаем размер шрифта
             currentExerciseDesc.textContent = exercise.description;
-            currentExerciseDiff.innerHTML = getDifficultyLabel(exercise.difficulty);
+            currentExerciseDiff.innerHTML = `<span class="text-white mr-2">Сложность:</span>${getDifficultyLabel(exercise.difficulty)}`;
             currentExerciseDiv.classList.remove('hidden');
+
+            // Прокрутка к таймеру
+            document.getElementById('timerCircle').scrollIntoView({ behavior: 'smooth' });
         }
 
-        // Запуск таймера
+        // Таймер
         function startExerciseAndTimer() {
             if (!currentExerciseId) {
                 alert("Выберите упражнение");
@@ -264,11 +272,11 @@
         }
 
         function playCompletionSound() {
-            const audio = new Audio('https://assets.mixkit.co/sounds/download/mixkit-software-interface-file-operation-completed-2120.wav');  
+            const audio = new Audio('https://assets.mixkit.co/sounds/download/mixkit-software-interface-file-operation-completed-2120.wav'); 
             audio.play().catch(e => console.log('Не удалось воспроизвести звук:', e));
         }
 
-        // Инициализация сайта
+        // Инициализация при загрузке
         document.addEventListener('DOMContentLoaded', () => {
             renderExercises();
             updateTimerDisplay();
