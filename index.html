@@ -18,12 +18,10 @@
         <!-- Шапка -->
         <header class="mb-6 md:mb-12 text-center">
             <h1 class="text-2xl md:text-4xl font-bold text-white mb-2">Тренажёр ораторского мастерства</h1>
-            <p class="text-base md:text-lg text-white max-w-2xl mx-auto px-2">
-                Совершенствуйте свои навыки публичных выступлений с помощью разнообразных упражнений
-            </p>
+            <p class="text-base md:text-lg text-white max-w-2xl mx-auto px-2">Совершенствуйте свои навыки публичных выступлений с помощью разнообразных упражнений</p>
         </header>
 
-        <!-- Макет страницы -->
+        <!-- Основное содержимое -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8">
             <!-- Колонка 1: Список упражнений -->
             <div class="md:col-span-2 space-y-6">
@@ -32,10 +30,9 @@
                         <h2 class="text-2xl font-semibold text-white">Мои упражнения</h2>
                     </div>
                     <!-- Список упражнений -->
-                    <div id="exercisesList" class="space-y-4 overflow-y-auto max-h-[70vh]"></div>
+                    <div id="exercisesList" class="space-y-3 md:space-y-4 overflow-y-auto max-h-[70vh] md:max-h-none"></div>
                 </div>
             </div>
-
             <!-- Колонка 2: Таймер -->
             <div class="space-y-6">
                 <!-- Таймер -->
@@ -48,40 +45,39 @@
                                 <circle cx="50%" cy="50%" r="80" fill="none" stroke="#2D3748" stroke-width="12"></circle>
                                 <circle id="timerProgress" cx="50%" cy="50%" r="80" fill="none" stroke="#4299E1" stroke-width="12" stroke-dasharray="502.4" stroke-dashoffset="0"></circle>
                             </svg>
-                            <!-- Отображение времени внутри таймера -->
                             <div id="timerDisplay" class="absolute inset-0 flex items-center justify-center flex-col">
-                                <div class="text-4xl font-bold text-white mb-1">03:00</div>
+                                <div class="text-4xl md:text-5xl font-bold text-white mb-1">03:00</div>
                                 <div class="text-sm text-white">осталось</div>
                             </div>
                         </div>
-                        <!-- Кнопки управления -->
-                        <div class="flex space-x-2 w-full justify-center">
-                            <button id="startTimerBtn" onclick="startExerciseAndTimer()" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-2 rounded text-sm flex items-center justify-center">
-                                <i class="fas fa-play mr-1"></i> Старт
+                        <div class="flex space-x-2 md:space-x-3">
+                            <button id="startTimer" onclick="startTimer()" class="px-4 py-1 md:px-6 md:py-2 bg-gray-700 text-white rounded-full hover:bg-gray-600 transition flex items-center text-sm md:text-base">
+                                <i class="fas fa-play mr-2"></i> Старт
                             </button>
-                            <button id="pauseTimerBtn" onclick="pauseTimer()" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-2 rounded text-sm hidden flex items-center justify-center">
-                                <i class="fas fa-pause mr-1"></i> Пауза
+                            <button id="pauseTimer" onclick="pauseTimer()" class="px-6 py-2 bg-gray-700 border border-gray-600 text-white rounded-full hover:bg-gray-600 transition flex items-center hidden">
+                                <i class="fas fa-pause mr-2"></i> Пауза
                             </button>
-                            <button onclick="resetTimer()" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-2 rounded text-sm flex items-center justify-center">
-                                <i class="fas fa-redo mr-1"></i> Сброс
+                            <button onclick="resetTimer()" class="px-6 py-2 bg-gray-700 border border-gray-600 text-white rounded-full hover:bg-gray-600 transition flex items-center">
+                                <i class="fas fa-redo mr-2"></i> Сброс
                             </button>
                         </div>
                     </div>
                 </div>
-
-                <!-- Блок "Сейчас выступаете" -->
+                <!-- Текущее упражнение -->
                 <div id="currentExercise" class="bg-gray-800 rounded-xl shadow-md p-6 hidden">
                     <h2 class="text-2xl font-semibold text-white mb-2">Сейчас выступаете:</h2>
                     <h3 id="currentExerciseTitle" class="text-xl font-medium text-white mb-2"></h3>
                     <p id="currentExerciseDesc" class="text-white mb-3"></p>
-                    <div id="currentExerciseDiff" class="flex items-center text-sm"></div>
+                    <div id="currentExerciseDiff" class="flex items-center text-sm">
+                        <!-- Здесь будет сложность -->
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Список упражнений
+        // Инициализация данных
         let exercises = [
             {
                 id: 1,
@@ -108,7 +104,6 @@
                 completed: false
             }
         ];
-
         const isAdminMode = true;
         let timerInterval;
         let timeLeft = 180; // 3 минуты по умолчанию
@@ -119,8 +114,8 @@
         const exercisesList = document.getElementById('exercisesList');
         const timerDisplay = document.getElementById('timerDisplay');
         const timerProgress = document.getElementById('timerProgress');
-        const startTimerBtn = document.getElementById('startTimerBtn');
-        const pauseTimerBtn = document.getElementById('pauseTimerBtn');
+        const startTimerBtn = document.getElementById('startTimer');
+        const pauseTimerBtn = document.getElementById('pauseTimer');
         const currentExerciseDiv = document.getElementById('currentExercise');
         const currentExerciseTitle = document.getElementById('currentExerciseTitle');
         const currentExerciseDesc = document.getElementById('currentExerciseDesc');
@@ -146,7 +141,7 @@
             return `<span class="inline-block border border-blue-500 text-white text-xs px-2 py-1 rounded">${label}</span>`;
         }
 
-        // Рисует карточки упражнений
+        // Обновление списка упражнений
         function renderExercises() {
             exercisesList.innerHTML = '';
             exercises.forEach(exercise => {
@@ -157,22 +152,20 @@
                 exerciseCard.innerHTML = `
                     <div class="flex justify-between items-start">
                         <div>
-                            <!-- ✅ Название в кавычках -->
+                            <!-- ✅ Добавили кавычки вокруг названия -->
                             <h3 class="font-semibold text-lg text-white">"${exercise.title}"</h3>
                             <p class="text-white text-sm mt-1">${exercise.description}</p>
                         </div>
-                        <!-- ✅ Теперь "3 мин" рядом с текстом -->
-                        <div class="flex justify-end items-center">
-                            <span class="text-white whitespace-nowrap">${exercise.time} мин</span>
-                        </div>
+                        <span class="text-sm font-medium px-2 py-1 bg-gray-300 text-black rounded-full">${exercise.time} мин</span>
                     </div>
                     <div class="mt-3 flex justify-between items-center">
                         <div>
+                            <!-- ✅ Добавили слово "Сложность:" -->
                             <span class="text-white mr-2">Сложность:</span>
-                            ${getDifficultyLabel(exercise.difficulty)}
+                            ${difficultyLabel}
                         </div>
                         <div>
-                            <button onclick="startExercise(${exercise.id}, event)" class="text-xs bg-green-700 hover:bg-green-600 text-white px-3 py-1 rounded">
+                            <button onclick="startExercise(${exercise.id}, event)" class="text-xs bg-green-700 hover:bg-green-600 text-white px-3 py-1 rounded-md mr-2">
                                 Начать
                             </button>
                         </div>
@@ -192,22 +185,14 @@
             timeLeft = exercise.time * 60;
             updateTimerDisplay();
 
-            // Показываем полное описание и уровень сложности
             currentExerciseTitle.textContent = `"${exercise.title}"`;
             currentExerciseDesc.textContent = exercise.description;
             currentExerciseDiff.innerHTML = `<span class="text-white mr-2">Сложность:</span>${getDifficultyLabel(exercise.difficulty)}`;
             currentExerciseDiv.classList.remove('hidden');
+            document.getElementById('timerCircle').scrollIntoView({ behavior: 'smooth' });
         }
 
         // Таймер
-        function startExerciseAndTimer() {
-            if (!currentExerciseId) {
-                alert("Пожалуйста, выберите упражнение");
-                return;
-            }
-            startTimer();
-        }
-
         function startTimer() {
             if (isTimerRunning) return;
             if (timeLeft <= 0) resetTimer();
@@ -269,10 +254,10 @@
 
         function playCompletionSound() {
             const audio = new Audio('https://assets.mixkit.co/sounds/download/mixkit-software-interface-file-operation-completed-2120.wav');  
-            audio.play().catch(e => console.log('❌ Не удалось воспроизвести звук:', e));
+            audio.play().catch(e => console.log('Не удалось воспроизвести звук:', e));
         }
 
-        // Инициализация при загрузке
+        // Загрузка страницы
         document.addEventListener('DOMContentLoaded', () => {
             renderExercises();
             updateTimerDisplay();
