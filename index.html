@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Тренажёр публичных выступлений</title>
-    <script src="https://cdn.tailwindcss.com"></script>   
+    <script src="https://cdn.tailwindcss.com"></script> 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"  rel="stylesheet">
     <style>
         .speech-card:hover {
@@ -18,9 +18,8 @@
         <!-- Шапка -->
         <header class="mb-6 md:mb-12 text-center">
             <h1 class="text-2xl md:text-4xl font-bold text-white mb-2">Тренажёр ораторского мастерства</h1>
-            <p class="text-base md:text-lg text-white max-w-2xl mx-auto px-2">Каждую неделю упражнения будут меняться
-            <p class="text-sm md:text-lg text-white max-w-2xl mx-auto px-2Я">Каждую неделю ты будешь расти
-         </p>
+            <p class="text-base md:text-lg text-white max-w-2xl mx-auto px-2">Каждую неделю упражнения будут меняться</p>
+            <p class="text-sm md:text-lg text-white max-w-2xl mx-auto px-2">Каждую неделю ты будешь расти</p>
         </header>
 
         <!-- Основное содержимое -->
@@ -53,6 +52,7 @@
                                 <div class="text-sm text-white">осталось</div>
                             </div>
                         </div>
+
                         <!-- Кнопки управления -->
                         <div class="flex space-x-2 w-full justify-center">
                             <button id="startTimerBtn" onclick="startExerciseAndTimer()" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white py-2 rounded text-sm flex items-center justify-center">
@@ -78,14 +78,13 @@
             </div>
         </div>
 
-        <!-- Надпись для доната внизу -->
-        <!-- Надпись для доната внизу -->
-<footer class="mt-12 text-center text-gray-400 pb-6">
-    <p>Если тебе помог тренажёр, ты можешь поддержать проект:</p>
-    <a href="https://yoomoney.ru/to/4100116092080366"  target="_blank" class="text-blue-400 underline mt-2 inline-block">
-        <i class="fab fa-yandex-international mr-1"></i> Задонатить
-    </a>
-</footer>
+        <!-- Футер -->
+        <footer class="mt-12 text-center text-gray-400 pb-6">
+            <p>Если тебе помог тренажёр, ты можешь поддержать проект:</p>
+            <a href="https://yoomoney.ru/to/4100116092080366"  target="_blank" class="text-blue-400 underline mt-2 inline-block">
+                <i class="fab fa-yandex-international mr-1"></i> Задонатить
+            </a>
+        </footer>
     </div>
 
     <script>
@@ -94,15 +93,17 @@
             {
                 id: 1,
                 title: "Видимый предмет",
-                description: "Пока идет время, называй ВСЛУХ все предметы, которые видишь.",
+                shortDescription: "Называй вслух всё, что видишь.",
+                description: "Пока идет время, называй ВСЛУХ все предметы, которые видишь. Постарайся говорить без пауз, не повторяйся. Это упражнение развивает спонтанность и реакцию.",
                 difficulty: 1,
                 time: 3,
                 completed: false
             },
             {
                 id: 2,
-                title: "Цепочка историй", 
-                description: "Выбери предмет, который первым попался на твои глаза. Рассказывай о нем всё, что знаешь... Факты, истории...",
+                title: "Цепочка историй",
+                shortDescription: "Расскажи о случайном предмете.",
+                description: "Выбери предмет, который первым попался на глаза. Рассказывай о нем всё, что знаешь... Факты, истории, ассоциации. Главное — говорить без пауз.",
                 difficulty: 1,
                 time: 2,
                 completed: false
@@ -110,14 +111,14 @@
             {
                 id: 3,
                 title: "Пой",
-                description: "Одень наушники, включи любимый трек... и пой. Вслух.",
+                shortDescription: "Пой песню вслух под музыку.",
+                description: "Одень наушники, включи любимый трек... и пой. Вслух. Не стесняйся. Это поможет тебе привыкнуть к звуку своего голоса.",
                 difficulty: 1,
                 time: 5,
                 completed: false
             }
         ];
 
-        const isAdminMode = true;
         let timerInterval;
         let timeLeft = 180; // 3 минуты по умолчанию
         let isTimerRunning = false;
@@ -134,7 +135,7 @@
         const currentExerciseDesc = document.getElementById('currentExerciseDesc');
         const currentExerciseDiff = document.getElementById('currentExerciseDiff');
 
-        // Формирует метку уровня сложности
+        // Метка уровня сложности
         function getDifficultyLabel(difficulty) {
             let label = '';
             switch (difficulty) {
@@ -150,7 +151,6 @@
                 default:
                     label = "Неизвестно";
             }
-
             return `<span class="inline-block border border-blue-500 text-white text-xs px-2 py-1 rounded">${label}</span>`;
         }
 
@@ -159,21 +159,18 @@
             exercisesList.innerHTML = '';
             exercises.forEach(exercise => {
                 const difficultyLabel = getDifficultyLabel(exercise.difficulty);
-
                 const exerciseCard = document.createElement('div');
                 exerciseCard.className = 'speech-card border-2 border-blue-500 rounded-lg p-4 bg-gray-700 transition cursor-pointer hover:shadow-md';
                 exerciseCard.innerHTML = `
                     <div class="flex justify-between items-start">
                         <div>
-                            <!-- ✅ Название упражнения теперь в кавычках -->
                             <h3 class="font-semibold text-lg text-white">"${exercise.title}"</h3>
-                            <p class="text-white text-sm mt-1">${exercise.description}</p>
+                            <p class="text-white text-sm mt-1">${exercise.shortDescription}</p>
                         </div>
                         <span class="text-white whitespace-nowrap">${exercise.time} мин</span>
                     </div>
                     <div class="mt-3 flex justify-between items-center">
                         <div>
-                            <!-- ✅ Слово "Сложность:" добавлено один раз -->
                             <span class="text-white mr-2">Сложность:</span>
                             ${difficultyLabel}
                         </div>
@@ -202,13 +199,15 @@
             currentExerciseTitle.textContent = `"${exercise.title}"`;
             currentExerciseDesc.textContent = exercise.description;
 
-            // ✅ Добавляем слово "Сложность:" перед уровнем
+            // Отображаем уровень сложности с пометкой
             currentExerciseDiff.innerHTML = `
                 <span class="text-white mr-2">Сложность:</span>
                 ${getDifficultyLabel(exercise.difficulty)}
             `;
 
             currentExerciseDiv.classList.remove('hidden');
+
+            // Скроллим к таймеру
             document.getElementById('timerCircle').scrollIntoView({ behavior: 'smooth' });
         }
 
@@ -231,11 +230,13 @@
             timerInterval = setInterval(() => {
                 timeLeft--;
                 updateTimerDisplay();
+
                 if (timeLeft <= 0) {
                     clearInterval(timerInterval);
                     isTimerRunning = false;
                     startTimerBtn.classList.remove('hidden');
                     pauseTimerBtn.classList.add('hidden');
+
                     if (currentExerciseId) {
                         const exercise = exercises.find(ex => ex.id === currentExerciseId);
                         if (exercise) {
@@ -243,6 +244,7 @@
                             renderExercises();
                         }
                     }
+
                     playCompletionSound();
                 }
             }, 1000);
@@ -273,6 +275,7 @@
             const minutes = Math.floor(timeLeft / 60);
             const seconds = timeLeft % 60;
             timerDisplay.querySelector('div:first-child').textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
             const totalSeconds = currentExerciseId ? exercises.find(ex => ex.id === currentExerciseId)?.time * 60 : 180;
             const circumference = 2 * Math.PI * 80;
             const percent = (timeLeft / totalSeconds) * circumference;
@@ -281,11 +284,11 @@
         }
 
         function playCompletionSound() {
-            const audio = new Audio('https://assets.mixkit.co/sounds/download/mixkit-software-interface-file-operation-completed-2120.wav');  
+            const audio = new Audio('https://assets.mixkit.co/sounds/download/mixkit-software-interface-file-operation-completed-2120.wav'); 
             audio.play().catch(e => console.log('❌ Не удалось воспроизвести звук:', e));
         }
 
-        // Инициализация при загрузке страницы
+        // Инициализация
         document.addEventListener('DOMContentLoaded', () => {
             renderExercises();
             updateTimerDisplay();
