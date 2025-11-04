@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
-  <title>Побег от Злодея — Сбалансированный Ад</title>
+  <title>Побег от Злодея </title>
   <style>
     * { box-sizing: border-box; touch-action: none; }
     body {
@@ -43,7 +43,7 @@
       z-index: 5;
       box-shadow: 0 0 12px #ff6b6b;
     }
-    #villain, .clone, .mini-villain, .mirror {
+    #villain, .clone, .mini-villain {
       position: absolute;
       width: 40px;
       height: 40px;
@@ -56,27 +56,16 @@
       transform: translate(-50%, -50%);
       z-index: 4;
     }
-    .clone { opacity: 0.75; background: #a30000; animation: pulseClone 1.8s infinite alternate; }
-    .mini-villain { width: 18px; height: 18px; font-size: 14px; background: #600; z-index: 3; }
-    .mirror { background: #444; color: #ff6b6b; }
-    .heart {
+    .clone { opacity: 0.7; background: #a30000; }
+    .mini-villain { width: 20px; height: 20px; font-size: 16px; background: #600; }
+    .heart, .trap {
       position: absolute;
       font-size: 24px;
       user-select: none;
       pointer-events: none;
       z-index: 2;
     }
-    .trap {
-      position: absolute;
-      font-size: 32px;
-      z-index: 3;
-      animation: spinTrap 4s infinite linear;
-    }
-    @keyframes spinTrap { to { transform: rotate(360deg); } }
-    @keyframes pulseClone {
-      from { box-shadow: 0 0 8px #f00; }
-      to { box-shadow: 0 0 25px #f36; }
-    }
+    .trap { pointer-events: auto; z-index: 6; }
     #villainText {
       position: absolute;
       font-size: 16px;
@@ -84,13 +73,8 @@
       white-space: nowrap;
       z-index: 10;
       pointer-events: none;
-      text-shadow: 0 0 6px #ff00ff;
       color: #ff6ec7;
-      animation: flicker 3s infinite;
-    }
-    @keyframes flicker {
-      0%, 100% { opacity: 1; text-shadow: 0 0 8px #ff00ff; }
-      50% { opacity: 0.8; text-shadow: 0 0 15px #ff2288; }
+      text-shadow: 0 0 6px #ff00ff;
     }
     #message {
       position: absolute;
@@ -120,24 +104,19 @@
       color: white;
       font-weight: bold;
     }
-    #instructions {
-      margin-top: 10px;
-      font-size: 16px;
-      color: #aaa;
-    }
   </style>
 </head>
 <body>
 
-<h1>Побег от Злодея — Сбалансированный Ад</h1>
-<p id="instructions">Кликни или коснись — героиня побежит туда!</p>
+<h1>Побег от Злодея — Хитрости, а не скорость</h1>
+<p>Кликни — героиня побежит туда. Злодей ловит только хитростями!</p>
 
 <div id="gameArea">
   <div id="player">👧</div>
   <div id="villain">😈</div>
   <div id="villainText"></div>
   <div id="message">
-    Ты моя… навеки.<br><br>
+    Теперь ты моя... навеки.<br><br>
     <button id="restartBtn">Начать заново</button>
   </div>
 </div>
@@ -154,61 +133,41 @@
   let clones = [];
   let traps = [];
   let miniVillains = [];
-  let mirrorPlayer = null;
   let gameActive = true;
   let targetX = 300;
   let targetY = 320;
   let playerX = 300;
   let playerY = 320;
-  let villainSpeed = 0.4;
-  let invertedControls = false;
-  let playerSpeedMultiplier = 1;
-  let fakeWinTimeout = null;
+  const VILLAIN_SPEED = 0.5; // 🔒 ФИКСИРОВАННАЯ СКОРОСТЬ, НИКОГДА НЕ МЕНЯЕТСЯ
   let trickActive = false;
-  let playerFrozen = false;
-  let reversePull = false;
-  let diagonalOnly = false;
-  let roleSwapped = false;
-  let gravityFlipped = false;
 
-  // 💋 Фразы маньяка — теперь реже и атмосфернее
   const villainPhrases = [
-    "Твои глаза… они уже принадлежат мне.",
-    "Я чувствую, как твоё сердце бьётся… для меня.",
-    "Беги… мне нравится, как ты дрожишь.",
-    "Ты не уйдёшь. Ты — моя мечта… и моя жертва.",
-    "Дыши глубже… я уже в твоих венах.",
-    "Ты такая горячая… даже в страхе.",
-    "Я не убью тебя. Я сделаю тебя… вечной.",
-    "Ты пахнешь страхом… и желанием.",
-    "Каждый твой шаг — ближе ко мне. Не сопротивляйся.",
-    "Ты родилась, чтобы быть моей. Признай это."
+    "Ты думаешь, что убегаешь?..",
+    "Я играю с тобой, моя прелесть.",
+    "Ты уже в моей сети…",
+    "Беги. Мне нравится твоя надежда.",
+    "Ты — моя игрушка. Навсегда."
   ];
 
-  // =============== ЭФФЕКТЫ (30 шт) ===============
-  // Для краткости — оставим 5 ключевых, но сохраним структуру под 30
-  // (в реальном проекте можно раскомментировать все)
-
+  // ========== ВСЕ 10 РАЗНООБРАЗНЫХ ХИТРОСТЕЙ ==========
   function clearTrick() {
     trickActive = false;
     villainText.style.display = 'none';
   }
 
-  function t1() { trickActive = true; villainSpeed = 0; say("Я так устал... от твоего сопротивления."); setTimeout(() => { villainSpeed = 2.3; setTimeout(() => { villainSpeed = 0.8; clearTrick(); }, 3000); }, 4000); }
-  function t2() { trickActive = true; const r = gameArea.getBoundingClientRect(); const px = playerX, py = playerY; const a = Math.random()*Math.PI*2, d = 40+Math.random()*50; let nx = px+Math.cos(a)*d, ny = py+Math.sin(a)*d; nx = Math.max(40, Math.min(nx, r.width-40)); ny = Math.max(40, Math.min(ny, r.height-40)); villain.style.left = nx+'px'; villain.style.top = ny+'px'; setTimeout(clearTrick, 80); }
-  function t3() {
+  function t1_Clones() {
     trickActive = true;
     const r = gameArea.getBoundingClientRect();
-    const count = 9;
+    const count = 6 + Math.floor(Math.random() * 4);
     const list = [];
     for (let i = 0; i < count; i++) {
       const c = document.createElement('div');
       c.className = 'clone';
-      c.innerHTML = '👁️';
-      const a = Math.random() * Math.PI * 2;
-      const d = 70 + Math.random() * 90;
-      let x = (parseFloat(villain.style.left) || 300) + Math.cos(a) * d;
-      let y = (parseFloat(villain.style.top) || 60) + Math.sin(a) * d;
+      c.innerHTML = '😈';
+      const ang = Math.random() * Math.PI * 2;
+      const dist = 80 + Math.random() * 100;
+      let x = (parseFloat(villain.style.left) || 300) + Math.cos(ang) * dist;
+      let y = (parseFloat(villain.style.top) || 60) + Math.sin(ang) * dist;
       x = Math.max(25, Math.min(x, r.width - 25));
       y = Math.max(25, Math.min(y, r.height - 25));
       c.style.left = x + 'px';
@@ -217,7 +176,8 @@
       list.push(c);
     }
     clones = list;
-    const move = () => {
+    say("Смотри… теперь я везде.");
+    const moveClones = () => {
       if (!trickActive) return;
       list.forEach(c => {
         const r = gameArea.getBoundingClientRect();
@@ -227,24 +187,266 @@
         const cy = cr.top - r.top + cr.height/2;
         const px = pr.left - r.left + pr.width/2;
         const py = pr.top - r.top + pr.height/2;
-        const nx = parseFloat(c.style.left) + Math.sign(px - cx) * 1.1;
-        const ny = parseFloat(c.style.top) + Math.sign(py - cy) * 1.1;
+        const nx = parseFloat(c.style.left) + Math.sign(px - cx) * 1.0;
+        const ny = parseFloat(c.style.top) + Math.sign(py - cy) * 1.0;
         c.style.left = Math.max(25, Math.min(nx, r.width - 25)) + 'px';
         c.style.top = Math.max(25, Math.min(ny, r.height - 25)) + 'px';
         if (checkCollision(player, c)) endGame();
       });
+      requestAnimationFrame(moveClones);
+    };
+    moveClones();
+    setTimeout(() => { list.forEach(c => c.remove()); clones = []; clearTrick(); }, 5000);
+  }
+
+  function t2_Teleport() {
+    trickActive = true;
+    const r = gameArea.getBoundingClientRect();
+    const px = playerX, py = playerY;
+    const ang = Math.random() * Math.PI * 2;
+    const dist = 30 + Math.random() * 50;
+    let nx = px + Math.cos(ang) * dist;
+    let ny = py + Math.sin(ang) * dist;
+    nx = Math.max(40, Math.min(nx, r.width - 40));
+    ny = Math.max(40, Math.min(ny, r.height - 40));
+    villain.style.left = nx + 'px';
+    villain.style.top = ny + 'px';
+    say("Бу!.. Я рядом.");
+    setTimeout(() => {
+      if (checkCollision(player, villain)) endGame();
+      clearTrick();
+    }, 300);
+  }
+
+  function t3_WebTrap() {
+    trickActive = true;
+    const r = gameArea.getBoundingClientRect();
+    const trap = document.createElement('div');
+    trap.className = 'trap';
+    trap.innerHTML = '🕸️';
+    trap.style.left = playerX + 'px';
+    trap.style.top = playerY + 'px';
+    gameArea.appendChild(trap);
+    traps.push(trap);
+    say("Ловушка под тобой…");
+    setTimeout(() => { clearTrick(); }, 100);
+  }
+
+  function t4_MiniHunters() {
+    trickActive = true;
+    const r = gameArea.getBoundingClientRect();
+    const count = 10;
+    const list = [];
+    for (let i = 0; i < count; i++) {
+      const mv = document.createElement('div');
+      mv.className = 'mini-villain';
+      mv.innerHTML = '👹';
+      mv.style.left = Math.random() * r.width + 'px';
+      mv.style.top = Math.random() * r.height + 'px';
+      gameArea.appendChild(mv);
+      list.push(mv);
+      miniVillains.push(mv);
+    }
+    say("Мои слуги… поймайте её!");
+    const move = () => {
+      if (!trickActive) return;
+      list.forEach(mv => {
+        const mr = mv.getBoundingClientRect();
+        const pr = player.getBoundingClientRect();
+        const gr = gameArea.getBoundingClientRect();
+        const mx = mr.left - gr.left + mr.width/2;
+        const my = mr.top - gr.top + mr.height/2;
+        const px = pr.left - gr.left + pr.width/2;
+        const py = pr.top - gr.top + pr.height/2;
+        const nx = parseFloat(mv.style.left) + Math.sign(px - mx) * 1.8;
+        const ny = parseFloat(mv.style.top) + Math.sign(py - my) * 1.8;
+        mv.style.left = Math.max(10, Math.min(nx, gr.width - 10)) + 'px';
+        mv.style.top = Math.max(10, Math.min(ny, gr.height - 10)) + 'px';
+        if (checkCollision(player, mv)) endGame();
+      });
       requestAnimationFrame(move);
     };
     move();
-    setTimeout(() => { list.forEach(c => c.remove()); clones = []; clearTrick(); }, 4800);
+    setTimeout(() => { list.forEach(m => m.remove()); miniVillains = miniVillains.filter(m => !list.includes(m)); clearTrick(); }, 4000);
   }
-  function t4() { trickActive = true; say("Пора… обняться навеки."); setTimeout(() => { playerX = parseFloat(villain.style.left); playerY = parseFloat(villain.style.top); updatePlayerDOM(); clearTrick(); }, 1000); }
-  function t5() { trickActive = true; const r = gameArea.getBoundingClientRect(); const count = 12; const list = []; for (let i = 0; i < count; i++) { setTimeout(() => { if (!trickActive) return; const t = document.createElement('div'); t.className = 'trap'; t.innerHTML = '🕸️'; t.style.left = (Math.random() * (r.width - 40)) + 'px'; t.style.top = (Math.random() * (r.height - 40)) + 'px'; gameArea.appendChild(t); traps.push(t); list.push(t); }, i * 200); } say("Ты в моей паутине… навсегда."); setTimeout(() => { list.forEach(t => { if (t.parentNode) t.remove(); const i = traps.indexOf(t); if (i !== -1) traps.splice(i, 1); }); clearTrick(); }, 7000); }
 
-  // Добавь сюда остальные 25 эффектов по шаблону, если нужно
-  const tricks = [t1, t2, t3, t4, t5]; // ← замени на все 30, если хочешь
+  function t5_FakeHeart() {
+    trickActive = true;
+    const r = gameArea.getBoundingClientRect();
+    const fake = document.createElement('div');
+    fake.className = 'heart';
+    fake.innerHTML = '❤️';
+    fake.style.color = '#ff2288';
+    fake.style.left = (r.width / 2 - 12) + 'px';
+    fake.style.top = (r.height / 2 - 12) + 'px';
+    fake.style.pointerEvents = 'auto';
+    gameArea.appendChild(fake);
+    say("Подари мне своё сердце…");
+    fake.onclick = () => { endGame(); };
+    setTimeout(() => {
+      if (fake.parentNode) fake.remove();
+      clearTrick();
+    }, 6000);
+  }
 
-  // =============== ОСНОВНЫЕ ФУНКЦИИ ===============
+  function t6_Invisibility() {
+    trickActive = true;
+    villain.style.opacity = '0.15';
+    say("Ты не видишь меня… но я здесь.");
+    let caught = false;
+    const check = () => {
+      if (!trickActive || caught) return;
+      // Каждые 300 мс проверяем, рядом ли игрок
+      const dx = playerX - parseFloat(villain.style.left);
+      const dy = playerY - parseFloat(villain.style.top);
+      if (Math.sqrt(dx*dx + dy*dy) < 50) {
+        caught = true;
+        endGame();
+      }
+      if (trickActive) setTimeout(check, 300);
+    };
+    check();
+    setTimeout(() => {
+      villain.style.opacity = '1';
+      clearTrick();
+    }, 5000);
+  }
+
+  function t7_GravitySwap() {
+    trickActive = true;
+    say("Вверх — это вниз.");
+    const originalY = playerY;
+    const r = gameArea.getBoundingClientRect();
+    // Меняем цель на противоположную по Y
+    targetY = r.height - originalY;
+    setTimeout(() => {
+      // Возвращаем
+      targetY = originalY;
+      clearTrick();
+    }, 3500);
+  }
+
+  function t8_Cage() {
+    trickActive = true;
+    const bars = [];
+    const r = gameArea.getBoundingClientRect();
+    const size = 80;
+    const x = playerX - size/2;
+    const y = playerY - size/2;
+    // Создаём невидимую клетку
+    const invisibleWall = document.createElement('div');
+    invisibleWall.style.position = 'absolute';
+    invisibleWall.style.left = x + 'px';
+    invisibleWall.style.top = y + 'px';
+    invisibleWall.style.width = size + 'px';
+    invisibleWall.style.height = size + 'px';
+    invisibleWall.style.border = '2px dashed #555';
+    invisibleWall.style.pointerEvents = 'none';
+    invisibleWall.style.zIndex = 5;
+    gameArea.appendChild(invisibleWall);
+    say("Ты в клетке моей любви.");
+    // Каждые 100 мс проверяем, пытается ли выйти
+    const interval = setInterval(() => {
+      if (!trickActive) return;
+      if (playerX < x || playerX > x + size || playerY < y || playerY > y + size) {
+        clearInterval(interval);
+        endGame();
+      }
+    }, 100);
+    setTimeout(() => {
+      clearInterval(interval);
+      invisibleWall.remove();
+      clearTrick();
+    }, 4000);
+  }
+
+  function t9_BloodRain() {
+    trickActive = true;
+    const r = gameArea.getBoundingClientRect();
+    const drops = [];
+    say("Кровавый дождь… как романтично.");
+    for (let i = 0; i < 20; i++) {
+      setTimeout(() => {
+        if (!trickActive) return;
+        const drop = document.createElement('div');
+        drop.innerHTML = '🩸';
+        drop.style.position = 'absolute';
+        drop.style.left = Math.random() * r.width + 'px';
+        drop.style.top = -20 + 'px';
+        drop.style.fontSize = '18px';
+        drop.style.zIndex = 1;
+        gameArea.appendChild(drop);
+        drops.push(drop);
+        // Анимация падения
+        const fall = () => {
+          if (!drop.parentNode) return;
+          let y = parseFloat(drop.style.top) + 4;
+          if (y > r.height) {
+            drop.remove();
+            return;
+          }
+          drop.style.top = y + 'px';
+          if (Math.abs(playerX - parseFloat(drop.style.left)) < 20 && Math.abs(playerY - y) < 20) {
+            endGame();
+          }
+          requestAnimationFrame(fall);
+        };
+        fall();
+      }, i * 250);
+    }
+    setTimeout(clearTrick, 6000);
+  }
+
+  function t10_HypnoGaze() {
+    trickActive = true;
+    const r = gameArea.getBoundingClientRect();
+    const heart = document.createElement('div');
+    heart.innerHTML = '❤️';
+    heart.style.position = 'absolute';
+    heart.style.left = (r.width / 2 - 12) + 'px';
+    heart.style.top = (r.height / 2 - 12) + 'px';
+    heart.style.fontSize = '32px';
+    heart.style.zIndex = 6;
+    heart.style.animation = 'pulse 1.5s infinite';
+    gameArea.appendChild(heart);
+    say("Смотри в моё сердце… навеки.");
+    let gazeTime = 0;
+    const check = () => {
+      if (!trickActive) return;
+      const dx = playerX - (r.width / 2);
+      const dy = playerY - (r.height / 2);
+      if (Math.sqrt(dx*dx + dy*dy) < 60) {
+        gazeTime += 100;
+        if (gazeTime >= 2000) {
+          endGame();
+          return;
+        }
+      } else {
+        gazeTime = 0;
+      }
+      requestAnimationFrame(check);
+    };
+    check();
+    setTimeout(() => {
+      if (heart.parentNode) heart.remove();
+      clearTrick();
+    }, 6000);
+  }
+
+  const tricks = [
+    t1_Clones,
+    t2_Teleport,
+    t3_WebTrap,
+    t4_MiniHunters,
+    t5_FakeHeart,
+    t6_Invisibility,
+    t7_GravitySwap,
+    t8_Cage,
+    t9_BloodRain,
+    t10_HypnoGaze
+  ];
+
+  // ========== ВСПОМОГАТЕЛЬНЫЕ ==========
   function say(text) {
     villainText.textContent = text;
     villainText.style.left = (parseFloat(villain.style.left) || 300) + 'px';
@@ -267,19 +469,9 @@
   }
 
   function handlePointerDown(e) {
-    if (!gameActive || playerFrozen) return;
     const rect = gameArea.getBoundingClientRect();
     let x = e.touches ? e.touches[0].clientX - rect.left : e.clientX - rect.left;
     let y = e.touches ? e.touches[0].clientY - rect.top : e.clientY - rect.top;
-    if (invertedControls) { x = rect.width - x; y = rect.height - y; }
-    if (gravityFlipped) y = rect.height - y;
-    if (diagonalOnly) {
-      const dx = x - playerX;
-      const dy = y - playerY;
-      const max = Math.max(Math.abs(dx), Math.abs(dy));
-      x = playerX + Math.sign(dx) * max;
-      y = playerY + Math.sign(dy) * max;
-    }
     targetX = Math.max(15, Math.min(x, rect.width - 15));
     targetY = Math.max(15, Math.min(y, rect.height - 15));
   }
@@ -288,23 +480,12 @@
   gameArea.addEventListener('touchstart', handlePointerDown, { passive: false });
 
   function movePlayer() {
-    if (!gameActive || playerFrozen) { requestAnimationFrame(movePlayer); return; }
-    if (reversePull) {
-      const vx = parseFloat(villain.style.left) || 300;
-      const vy = parseFloat(villain.style.top) || 60;
-      const dx = vx - playerX;
-      const dy = vy - playerY;
-      playerX += dx * 0.008;
-      playerY += dy * 0.008;
-    } else {
-      const dx = targetX - playerX;
-      const dy = targetY - playerY;
-      const baseSpeed = 6;
-      const speed = baseSpeed * playerSpeedMultiplier;
-      if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
-        playerX += dx * 0.1 * (speed / 6);
-        playerY += dy * 0.1 * (speed / 6);
-      }
+    if (!gameActive) return;
+    const dx = targetX - playerX;
+    const dy = targetY - playerY;
+    if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
+      playerX += dx * 0.05;
+      playerY += dy * 0.05;
     }
     updatePlayerDOM();
     requestAnimationFrame(movePlayer);
@@ -322,7 +503,7 @@
     heart.style.top = y + 'px';
     gameArea.appendChild(heart);
     hearts.push(heart);
-    setTimeout(spawnHeart, 1800 + Math.random() * 2200);
+    setTimeout(spawnHeart, 2000 + Math.random() * 3000);
   }
 
   function checkCollision(el1, el2) {
@@ -336,13 +517,13 @@
     );
   }
 
-  // =============== ТАЙМЕРЫ ===============
+  // ========== ОСНОВНОЙ ЦИКЛ ==========
   function scheduleTrick() {
     if (!gameActive || trickActive) {
-      setTimeout(scheduleTrick, 500);
+      setTimeout(scheduleTrick, 800);
       return;
     }
-    const delay = 1500 + Math.random() * 1500; // ⚡ 1.5–3 сек
+    const delay = 1800 + Math.random() * 1200; // 1.8–3 сек
     setTimeout(() => {
       if (gameActive && !trickActive) {
         const trick = tricks[Math.floor(Math.random() * tricks.length)];
@@ -354,20 +535,21 @@
 
   function schedulePhrase() {
     if (!gameActive) return;
-    const delay = 8000 + Math.random() * 7000; // 💬 8–15 сек
+    const delay = 10000 + Math.random() * 8000; // 10–18 сек
     setTimeout(() => {
       if (gameActive && !trickActive) {
         say(villainPhrases[Math.floor(Math.random() * villainPhrases.length)]);
         setTimeout(() => {
           if (gameActive && !trickActive) villainText.style.display = 'none';
-        }, 3000);
+        }, 2500);
       }
       schedulePhrase();
     }, delay);
   }
 
   function moveVillain() {
-    if (!gameActive && !fakeWinTimeout) { requestAnimationFrame(moveVillain); return; }
+    if (!gameActive) { requestAnimationFrame(moveVillain); return; }
+
     const rect = gameArea.getBoundingClientRect();
     const pRect = player.getBoundingClientRect();
     const vRect = villain.getBoundingClientRect();
@@ -375,21 +557,22 @@
     const py = pRect.top - rect.top + pRect.height/2;
     const vx = vRect.left - rect.left + vRect.width/2;
     const vy = vRect.top - rect.top + vRect.height/2;
+
     const dx = px - vx;
     const dy = py - vy;
-    const moveX = Math.abs(dx) > 0.1 ? Math.sign(dx) * villainSpeed : 0;
-    const moveY = Math.abs(dy) > 0.1 ? Math.sign(dy) * villainSpeed : 0;
+    const moveX = Math.abs(dx) > 0.1 ? Math.sign(dx) * VILLAIN_SPEED : 0;
+    const moveY = Math.abs(dy) > 0.1 ? Math.sign(dy) * VILLAIN_SPEED : 0;
+
     let nx = (parseFloat(villain.style.left) || rect.width/2) + moveX;
     let ny = (parseFloat(villain.style.top) || rect.height*0.1) + moveY;
     nx = Math.max(25, Math.min(nx, rect.width - 25));
     ny = Math.max(25, Math.min(ny, rect.height - 25));
+
     villain.style.left = nx + 'px';
     villain.style.top = ny + 'px';
 
-    // Проверка поимки
-    if (checkCollision(player, villain)) { endGame(); return; }
-    clones.forEach(c => { if (checkCollision(player, c)) { endGame(); return; } });
-    traps.forEach(t => { if (checkCollision(player, t)) { endGame(); return; } });
+    // ❗ ВАЖНО: обычное столкновение НЕ приводит к проигрышу!
+    // Проигрыш — ТОЛЬКО через эффекты (ловушки, клонов и т.д.)
 
     // Сбор сердечек
     for (let i = hearts.length - 1; i >= 0; i--) {
@@ -406,7 +589,6 @@
     if (!gameActive) return;
     gameActive = false;
     trickActive = false;
-    if (fakeWinTimeout) clearTimeout(fakeWinTimeout);
     message.innerHTML = 'Ты моя… навеки.<br><br>Узахахаха… любовь моя. 😈<br><br><button id="restartBtn">Начать заново</button>';
     message.style.display = 'block';
     document.getElementById('restartBtn').onclick = restartGame;
@@ -415,30 +597,13 @@
   function restartGame() {
     gameActive = true;
     trickActive = false;
-    villainSpeed = 0.8;
-    invertedControls = false;
-    playerSpeedMultiplier = 1;
-    playerFrozen = false;
-    reversePull = false;
-    diagonalOnly = false;
-    roleSwapped = false;
-    gravityFlipped = false;
-    if (fakeWinTimeout) clearTimeout(fakeWinTimeout);
-    fakeWinTimeout = null;
-
     [...hearts, ...clones, ...traps, ...miniVillains].forEach(el => el?.remove());
-    if (mirrorPlayer && mirrorPlayer.parentNode) mirrorPlayer.remove();
-    hearts = []; clones = []; traps = []; miniVillains = []; mirrorPlayer = null;
-
+    hearts = []; clones = []; traps = []; miniVillains = [];
     villain.style.cssText = `position:absolute;width:40px;height:40px;background:#8b0000;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;transform:translate(-50%,-50%);opacity:1;`;
     villain.innerHTML = '😈';
-    player.innerHTML = '👧';
-    player.style.background = '#ff4757';
     villainText.style.display = 'none';
-
     initPlayerPosition();
     message.style.display = 'none';
-
     spawnHeart();
     scheduleTrick();
     schedulePhrase();
@@ -451,8 +616,8 @@
   window.addEventListener('load', () => {
     initPlayerPosition();
     spawnHeart();
-    scheduleTrick();   // ⚡ частые эффекты
-    schedulePhrase();  // 💬 редкие фразы
+    scheduleTrick();
+    schedulePhrase();
     requestAnimationFrame(movePlayer);
     requestAnimationFrame(moveVillain);
   });
@@ -460,4 +625,3 @@
 
 </body>
 </html>
-
